@@ -108,4 +108,22 @@ class Comment(ActionBase):
 
     def __str__(self):
         return self.content
-    
+
+
+class CauHoi(models.Model):
+    user = models.ForeignKey(User, on_delete= models.CASCADE)
+    email = models.TextField()
+    content = models.TextField()
+    contentTL = models.TextField()
+    type = models.CharField(max_length=250, null=False)
+
+
+
+
+class CauHoiPublic(models.Model):
+    title = models.CharField(max_length=250, null=False)
+    content = models.TextField()
+    contentTL = models.TextField()
+
+    def __str__(self):
+        return self.title

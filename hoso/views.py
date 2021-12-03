@@ -1,6 +1,6 @@
-from .models import Category, Field, FileHoSo, Comment, NopHoSo, StatusHoSo
+from .models import Category, Field, FileHoSo, Comment, NopHoSo, StatusHoSo, CauHoiPublic, CauHoi
 from authentication.models import User
-from .serializers import CategorySerializer, FieldSerializer, FileSerializer, FileDetailSerializer, UserSerializer, ActionSerializer, CommentSerializer, MyNopDonSerializer, StatusHoSoSerializer, StatusHoSoSerializer
+from .serializers import CategorySerializer, FieldSerializer, FileSerializer, FileDetailSerializer, UserSerializer, ActionSerializer, CommentSerializer, MyNopDonSerializer, StatusHoSoSerializer, StatusHoSoSerializer, CauHoiPublicSerializer, CauHoiSerializer
 from .paginator import BasePaginator
 
 from django.http import Http404
@@ -101,14 +101,15 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView):
 
 
 
-class NopHoSoViewSet(viewsets.ViewSet):
+class NopHoSoViewSet(viewsets.ViewSet, generics.CreateAPIView):
     queryset = NopHoSo.objects.all()
     serializer_class  = MyNopDonSerializer
 
     def get_permissions(self):
-        if self.action in ['nop_hoso']:
+        if self.action in ['nop_hoso', 'get_files']:
             return [permissions.IsAuthenticated()]
         return [permissions.AllowAny()]
+
 
     @action(methods=['post'], detail=False, url_path="nop_hoso")
     def nop_hoso(self, request):
@@ -135,4 +136,41 @@ class StatusHoSoViewSet(viewsets.ViewSet):
     def getstatus_user(self, request, format=None):
         statuss = StatusHoSo.objects.filter(user=request.user)
         serializer = StatusHoSoSerializer(statuss, many=True)
+        return Response(serializer.data)
+
+
+class CauHoiThuongGapViewSet(viewsets.ViewSet, generics.ListAPIView):
+    serializer_class = CauHoiPublicSerializer
+    def get_queryset(self):
+        cauhoipublic = CauHoiPublic.objects.all()
+
+        q = self.request.query_params.get('q')
+        if q is not None:
+            cauhoipublic = cauhoipublic.filter(title__icontains=q)
+        return cauhoipublic
+
+
+class CauHoiViewSet(viewsets.ViewSet):
+    queryset = CauHoi.objects.all()
+    serializer_class  = CauHoiSerializer
+
+    def get_permissions(self):
+        if self.action in ['add_question', 'views']:
+            return [permissions.IsAuthenticated()]
+        return [permissions.AllowAny()]
+
+    @action(methods=['post'], detail=False, url_path="add_question")
+    def add_question(self, request):
+        serializer = CauHoiSerializer(data=request.data)
+        if serializer.is_valid():
+            c = serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+    @action(methods=['get'], detail=False, url_path='views')
+    def views(self, request, format=None):
+        cauhois = CauHoi.objects.filter(user=request.user)
+        serializer = CauHoiSerializer(cauhois, many=True)
         return Response(serializer.data)

@@ -9,6 +9,8 @@ routers.register("filehosos", views.FileHoSoViewSet, 'filehoso')
 routers.register("users", views.UserViewSet, 'user')
 routers.register("nophosos", views.NopHoSoViewSet, 'nophoso')
 routers.register("statuss", views.StatusHoSoViewSet, 'status')
+routers.register("thuonggap", views.CauHoiThuongGapViewSet, 'thuonggap')
+routers.register("question", views.CauHoiViewSet, 'question')
 
 
 urlpatterns = [

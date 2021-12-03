@@ -1,5 +1,5 @@
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
-from .models import Category, Field , FileHoSo, Action, Comment, NopHoSo, StatusHoSo
+from .models import Category, Field , FileHoSo, Action, Comment, NopHoSo, StatusHoSo, CauHoiPublic, CauHoi
 from authentication.models import User
 
 class CategorySerializer(ModelSerializer):
@@ -88,3 +88,17 @@ class CommentSerializer(ModelSerializer):
         fields = ['id', 'content', 'created_date', 'update_date']
 
 
+class CauHoiPublicSerializer(ModelSerializer):
+    class Meta:
+        model = CauHoiPublic
+        fields = ['id', 'title','content', 'contentTL']
+
+
+class CauHoiSerializer(ModelSerializer):
+    class Meta:
+        model= CauHoi
+        fields = ['email','content', 'type']
+
+    def create(seft, validated_data):
+        cauhoi = CauHoi.objects.create(**validated_data)
+        return cauhoi
