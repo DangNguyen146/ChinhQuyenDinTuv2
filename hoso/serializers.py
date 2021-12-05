@@ -47,7 +47,7 @@ class FileDetailSerializer(ModelSerializer):
 class MyNopDonSerializer(ModelSerializer):
     class Meta:
         model = NopHoSo
-        fields = ["id", "fullname", "cmnd","ngaythangnamsinh", "sonha","tonha","huyennha", "tinhnha","sdt", "email", "title", "hoso", "description","category", "field"]
+        fields = ["id", "fullname", "cmnd","ngaythangnamsinh", "sonha","tonha","huyennha", "tinhnha","sdt", "email", "title", "hoso", "description","category", "field", "hosoduocky", "status"]
 
     def create(seft, validated_data):
         hoso = NopHoSo.objects.create(**validated_data)

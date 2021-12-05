@@ -42,7 +42,7 @@ class GoogleSocialAuthSerializer(serializers.Serializer):
                 'The token is invalid or expired. Please login again.'
             )
         
-        if user_data['aud'] != '176086686228-v8o6usaae3vfhjnt1n8gslkjb32tvpfo.apps.googleusercontent.com':
+        if user_data['aud'] != '387161080981-qlu4lq9k4vt08b3r5663kmocmjftankt.apps.googleusercontent.com':
 
             raise AuthenticationFailed('oops, who are you?')
 

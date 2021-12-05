@@ -13,6 +13,12 @@ from rest_framework import viewsets, generics, status, permissions
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+
+from .utils import Util
+from django.core.files import File
+
+import signpdf
+
 class CategoryViewSet(viewsets.ViewSet, generics.ListAPIView):
     queryset = Category.objects.all()
     serializer_class  = CategorySerializer
@@ -59,6 +65,8 @@ class FileHoSoViewSet(viewsets.ViewSet,  generics.ListAPIView, generics.Retrieve
         if field_id is not None:
             hosos = hosos.filter(field_id=field_id)
         return hosos
+
+    
  
 
 
@@ -101,15 +109,18 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView):
 
 
 
-class NopHoSoViewSet(viewsets.ViewSet, generics.CreateAPIView):
+class NopHoSoViewSet(viewsets.ViewSet, generics.ListAPIView):
     queryset = NopHoSo.objects.all()
     serializer_class  = MyNopDonSerializer
+    pagination_class = BasePaginator
+    permission_class  = [permissions.IsAuthenticated()]
 
     def get_permissions(self):
-        if self.action in ['nop_hoso', 'get_files']:
+        if self.action in ['nop_hoso', 'ky_file', 'view_hoso']:
             return [permissions.IsAuthenticated()]
         return [permissions.AllowAny()]
 
+   
 
     @action(methods=['post'], detail=False, url_path="nop_hoso")
     def nop_hoso(self, request):
@@ -120,6 +131,35 @@ class NopHoSoViewSet(viewsets.ViewSet, generics.CreateAPIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(methods=['get'], detail=True, url_path="ky")
+    def ky_file(self, request, pk):
+        files = NopHoSo.objects.get(pk=pk)
+        temp = signpdf.sign_file(files.hoso.path, "000001", 100, 210, ('1'))
+        files.hosoduocky = temp
+        django_file = File(files.hosoduocky)
+        print(django_file)
+        files.hosoduocky.save('new', django_file)
+
+        absurl = 'http://justfreshmen.team/static/'+str(files.hosoduocky)
+
+        email_body = 'Hi '+files.fullname + \
+            'File bạn đã được ký. Dowload tại đây\n' + absurl
+        data = {'email_body': email_body, 'to_email': files.email,
+                'email_subject': 'File bạn đã được ký'}
+
+        Util.send_email(data)
+
+
+        return Response(MyNopDonSerializer(files).data, status=status.HTTP_200_OK)
+    
+    @action(methods=['get'], detail=True, url_path="view")
+    def view_hoso(self, request, pk):
+        files = NopHoSo.objects.get(pk=pk)
+
+        return Response(MyNopDonSerializer(files).data, status=status.HTTP_200_OK)
+
+    
 
 
 class StatusHoSoViewSet(viewsets.ViewSet):

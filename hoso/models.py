@@ -44,6 +44,14 @@ class FileHoSo(ModelUse):
 
 
 class NopHoSo(ModelUse):
+
+    NONE, SEE, SUCCESS, FAIL = range(4)
+    ACTIONS = [
+        (NONE, 'Đang chờ'),
+        (SEE, 'Đã xem'),
+        (SUCCESS, 'Thành công'),
+        (FAIL, 'Thất bại'),
+    ]
     class Meta:
         unique_together = ('title', 'field')
         ordering = ["-id"]
@@ -59,10 +67,13 @@ class NopHoSo(ModelUse):
     email = models.EmailField(max_length=254)
 
     hoso = models.FileField(upload_to='file/hoso/%Y/%m', default=None, null=True, blank=True)
+    hosoduocky = models.FileField(upload_to='file/hosoky/%Y/%m', default=None, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, related_name="vanban" , null=True)
     field = models.ForeignKey(Field, on_delete=models.SET_NULL, related_name="vanban" , null=True)
     user = models.ForeignKey(User,related_name='hosos', on_delete= models.CASCADE)
+    
+    status = models.PositiveSmallIntegerField(choices=ACTIONS, default=0)
 
 
 class StatusHoSo(models.Model):

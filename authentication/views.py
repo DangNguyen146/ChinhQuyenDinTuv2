@@ -66,7 +66,7 @@ class ReSendMailVery(generics.GenericAPIView):
         relativeLinks = '/email-verify'
         print(relativeLinks)
 
-        absurl = 'http://'+current_site+relativeLinks+"?token="+str(token)
+        absurl = 'http://'+relativeLinks+"?token="+str(token)
         email_body = 'Hi '+user.username + \
             'Sử dụng liên kết bên dưới để xác minh email của bạn \n' + absurl
         data = {'email_body': email_body, 'to_email': user.email,
@@ -124,7 +124,7 @@ class RequestPasswordResetEmail(generics.GenericAPIView):
                 'password-reset-confirm', kwargs={'uidb64': uidb64, 'token': token})
 
             redirect_url = request.data.get('redirect_url', '')
-            absurl = 'http://localhost:3001/logins' + relativeLink
+            absurl = 'http://localhost:3000/logins' + relativeLink
             email_body = 'Xin chào, \n Sử dụng liên kết bên dưới để đặt lại mật khẩu của bạn  \n' + \
                 absurl
             data = {'email_body': email_body, 'to_email': user.email,

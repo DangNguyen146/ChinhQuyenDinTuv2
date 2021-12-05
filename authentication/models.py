@@ -26,11 +26,12 @@ class UserManager(BaseUserManager):
         user.save()
         return user
 
-    def create_superuser(self, username, email, password=None):
+    def create_superuser(self, username, email, password=None, last_name='', phone=''):
         if password is None:
-            raise TypeError('Không được bỏ trống password')
+            raise TypeError('Password should not be none')
 
-        user = self.create_user(username, email, password)
+        user = self.create_user(username, email, last_name, phone)
+        user.set_password(password)
         user.is_superuser = True
         user.is_staff = True
         user.save()
@@ -52,9 +53,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     auth_provider = models.CharField(
         max_length=255, blank=False,
         null=False, default=AUTH_PROVIDERS.get('email'))
-    first_name = models.CharField(max_length=250, null=True, blank=True)
-    last_name = models.CharField(max_length=250, null=True, blank=True)
-    phone = models.CharField(max_length=250, null=True, blank=True)
+    first_name = models.CharField(max_length=250, null=True, blank=True, default='')
+    last_name = models.CharField(max_length=250, null=True, blank=True,default='')
+    phone = models.CharField(max_length=250, null=True, blank=True, default='')
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
